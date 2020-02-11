@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { connect } from 'react-redux';
 import { testIt } from '../actions';
 import { graphicMod as gM } from '../util';
+import Player from '../game/Player';
+import {PlayerView} from './Player';
 
 class Game extends Component {
     constructor() {
@@ -17,8 +19,9 @@ class Game extends Component {
                 y: 0,
                 w: 0,
                 h: 0
-            } 
+            }
         }
+        this.players = [];
     }
     componentDidMount() {
         const {width, height} = Dimensions.get('window');
@@ -39,10 +42,20 @@ class Game extends Component {
         });
 
         this.props.testIt();
+        this.players.push(Player.newPlayer(800, 100, {r: 100, g: 100, b: 255}, gM(width)));
+    }
+    renderPlayers() {
+        let players = [];
+        for(let i = 0; i<this.players.length; i++) {
+            players.push(<PlayerView key={i} x={this.players[i].x} y={this.players[i].y} scale={this.players[i].scale} eyeScale={this.players[i].eyeScale} color={this.players[i].color} />);
+        }
+        console.log(players);
+        return players;
     }
     render() {
         return (
             <View style={styles.gamecontainer}>
+                {this.renderPlayers()}
                 <View style={{...styles.platform, left: this.state.platform.x, width: this.state.platform.w, top: this.state.platform.y, height: this.state.platform.h}}></View>
                 <Text style={styles.testtext}>
                     asdfasdf
