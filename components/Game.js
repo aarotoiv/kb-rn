@@ -19,9 +19,22 @@ class Game extends Component {
                 y: 0,
                 w: 0,
                 h: 0
-            }
+            },
+            buttons: {
+                width: 0,
+                height: 0,
+                positions: []
+            },
+            players: []
         }
-        this.players = [];
+    }
+    updatePlayers() {
+        let tempPlayers = this.state.players;
+        for(let i = 0; i<tempPlayers.length; i++) {
+            tempPlayers[i].update();
+            tempPlayers[i].checkCollisions(this.state.platform, this.state.buttons);
+        }
+        this.setState({players: tempPlayers});
     }
     componentDidMount() {
         const {width, height} = Dimensions.get('window');
@@ -38,18 +51,28 @@ class Game extends Component {
                 y: 800 * gM(width),
                 w: 2160 * gM(width),
                 h: 5 
-            } 
+            },
+            buttons: {
+                width: 80 * gM(width),
+                height: 25 * gM(width),
+                positions: []
+            }
         });
 
         this.props.testIt();
-        this.players.push(Player.newPlayer(800, 100, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(800, 100, {r: 100, g: 100, b: 255}, gM(width)));
+
+        let self = this;
+        setInterval(function() {
+            self.updatePlayers();
+        }, 16.6666666);
     }
+    
     renderPlayers() {
         let players = [];
-        for(let i = 0; i<this.players.length; i++) {
-            players.push(<PlayerView key={i} x={this.players[i].x} y={this.players[i].y} scale={this.players[i].scale} eyeScale={this.players[i].eyeScale} color={this.players[i].color} />);
+        for(let i = 0; i<this.state.players.length; i++) {
+            players.push(<PlayerView key={i} x={this.state.players[i].x} y={this.state.players[i].y} scale={this.state.players[i].scale} eyeScale={this.state.players[i].eyeScale} color={this.state.players[i].color} />);
         }
-        console.log(players);
         return players;
     }
     render() {
