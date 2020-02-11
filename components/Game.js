@@ -27,8 +27,8 @@ class Game extends Component {
     }
     render() {
         return (
-            <View>
-                <Text>
+            <View style={styles.gamecontainer}>
+                <Text style={styles.testtext}>
                     asdfasdf
                     {this.props.testText}
                 </Text>
@@ -42,5 +42,16 @@ const mapStateToProps = (state) => {
         testText: state.game.kysta
     };
 };
+
+const styles = StyleSheet.create({
+    gamecontainer: {
+        flex: 1,
+        backgroundColor: "#000000"
+    },
+    testtext: {
+        color:"red",
+        fontSize: 30
+    }
+});
 
 export default connect(mapStateToProps, { testIt })(Game);
