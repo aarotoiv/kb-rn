@@ -121,7 +121,6 @@ class Game extends Component {
         let positions = [];
         const halfX = this.state.screenWidth / 2;
         const halfY = this.state.screenHeight / 2;
-        // 1 / halfX - this.state.players[i].x
         for(let i = 0; i<this.state.players.length; i++) {
             positions.push((this.state.players[i].x - halfX) / halfX);
             positions.push((halfY - this.state.players[i].y) / halfY);
@@ -193,6 +192,43 @@ class Game extends Component {
         gl.flush();
         gl.endFrameEXP();
         _initialized = true;
+
+        const onTick = () => {
+
+
+            let points = this.getPlayerPositions();
+            let colors = this.getPlayerColors();
+
+            const color_buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+            gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+            const color = gl.getAttribLocation(program, "color");
+            gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(color);
+
+            const point_buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
+            const point = gl.getAttribLocation(program, "point");
+            gl.vertexAttribPointer(point, 2, gl.FLOAT, false, 0,0);
+            gl.enableVertexAttribArray(point);
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.POINTS, 0, points.length / 2);
+            gl.flush();
+            gl.endFrameEXP();
+        };
+
+        const animate = () => {
+            if(gl) {
+                this.loop = requestAnimationFrame(animate);
+                onTick(gl);
+            }
+        };
+        animate();
     }
     renderGL() {
         return (
