@@ -1,24 +1,12 @@
 import React, { Component } from 'react';
 import { GLView } from 'expo-gl';
-//import Expo2DContext from 'expo-2d-context';
-import { View, Text, StyleSheet, Dimensions, PixelRatio } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, PixelRatio, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 import { testIt } from '../actions';
 import { graphicMod as gM } from '../util';
 import Player from '../game/Player';
 import {PlayerView} from './Player';
 
-/*
-
-uniform float r;
-uniform float g;
-uniform float b;
-
-out vec4 vCol;
-
-
-    vCol = vec4(r, g, b, 1.0);
-*/
 const vertSrc = `
 attribute vec3 color;
 attribute vec2 point;
@@ -26,7 +14,7 @@ varying vec3 vColor;
 
 void main(void) {
     gl_Position = vec4(point, 0.0, 1.0);
-    gl_PointSize = 100.0;
+    gl_PointSize = 70.0;
     vColor = color;
 }
 `;
@@ -61,6 +49,7 @@ class Game extends Component {
                 height: 0,
                 positions: []
             },
+            playerDefaultScale: 0,
             players: [],
             frames: 0,
             frameTime: 0,
@@ -71,6 +60,13 @@ class Game extends Component {
         for(let i = 0; i<this.state.players.length; i++) {
             this.state.players[i].update(updateRatio);
             this.state.players[i].checkCollisions(this.state.platform, this.state.buttons);
+        }
+    }
+    changeVels(self) {
+        console.log(this.state.players);
+        const rand = Math.random() * 100;
+        for(let i = 0; i<this.state.players.length; i++) {
+            this.state.players[i].velocityUpdate(rand > 50, rand < 50);
         }
     }
     componentDidMount() {
@@ -99,7 +95,7 @@ class Game extends Component {
         this.props.testIt();
         this.state.players.push(Player.newPlayer(200, 0, {r: 23, g: 54, b: 12}, gM(width)));
         this.state.players.push(Player.newPlayer(500, 300, {r: 250, g: 54, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(1250, 800, {r: 54, g: 255, b: 76}, gM(width)));
+        this.state.players.push(Player.newPlayer(1250, 0, {r: 54, g: 255, b: 76}, gM(width)));
 
         let self = this;
         setInterval(function() {
@@ -194,8 +190,6 @@ class Game extends Component {
         _initialized = true;
 
         const onTick = () => {
-
-
             let points = this.getPlayerPositions();
             let colors = this.getPlayerColors();
 
@@ -246,6 +240,9 @@ class Game extends Component {
                 <Text style={styles.testtext}>
                     {this.state.fps}
                 </Text>
+                <TouchableOpacity style={styles.debugBtn} onPress={this.changeVels.bind(this)}>
+                    <Text>ASDF</Text>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -259,8 +256,7 @@ const mapStateToProps = (state) => {
 
 const styles = StyleSheet.create({
     gamecontainer: {
-        flex: 1,
-        //backgroundColor: "#000000"
+        flex: 1
     },
     testtext: {
         color:"red",
@@ -270,6 +266,14 @@ const styles = StyleSheet.create({
     platform: {
         position: "absolute",
         backgroundColor: "#ffffff"
+    },
+    debugBtn: {
+        position:"absolute",
+        width: 50,
+        height: 50,
+        left: 50,
+        bottom: 50,
+        backgroundColor: "#fff"
     }
 });
 
