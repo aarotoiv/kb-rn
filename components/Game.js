@@ -8,16 +8,34 @@ import { graphicMod as gM } from '../util';
 import Player from '../game/Player';
 import {PlayerView} from './Player';
 
+/*
+
+uniform float r;
+uniform float g;
+uniform float b;
+
+out vec4 vCol;
+
+
+    vCol = vec4(r, g, b, 1.0);
+*/
 const vertSrc = `
+attribute vec3 color;
+varying vec3 vColor;
+
 void main(void) {
-  gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
-  gl_PointSize = 100.0;
+    gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+    gl_PointSize = 100.0;
+    vColor = color;
 }
 `;
 
 const fragSrc = `
+precision mediump float;
+varying vec3 vColor;
+
 void main(void) {
-  gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+  gl_FragColor = vec4(vColor, 1.0);
 }
 `;
 
@@ -109,32 +127,47 @@ class Game extends Component {
         
         if (_initialized) {
             return;
-          }
-      
-          gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-          gl.clearColor(0, 0, 0, 1);
-      
-          // Compile vertex and fragment shader
-          const vert = gl.createShader(gl.VERTEX_SHADER);
-          gl.shaderSource(vert, vertSrc);
-          gl.compileShader(vert);
-          const frag = gl.createShader(gl.FRAGMENT_SHADER);
-          gl.shaderSource(frag, fragSrc);
-          gl.compileShader(frag);
-      
-          // Link together into a program
-          const program = gl.createProgram();
-          gl.attachShader(program, vert);
-          gl.attachShader(program, frag);
-          gl.linkProgram(program);
-          gl.useProgram(program);
-      
-          gl.clear(gl.COLOR_BUFFER_BIT);
-          gl.drawArrays(gl.POINTS, 0, 1);
-      
-          gl.flush();
-          gl.endFrameEXP();
-          _initialized = true;
+        }
+    
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.clearColor(0, 0, 0, 1);
+    
+        // Compile vertex and fragment shader
+        const vert = gl.createShader(gl.VERTEX_SHADER);
+        
+        gl.shaderSource(vert, vertSrc);
+        gl.compileShader(vert);
+        const frag = gl.createShader(gl.FRAGMENT_SHADER);
+        
+        gl.shaderSource(frag, fragSrc);
+        gl.compileShader(frag);
+        
+        // Link together into a program
+        const program = gl.createProgram();
+        
+        gl.attachShader(program, vert);
+        gl.attachShader(program, frag);
+
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        let colors = [1.0,0.0,0.0];
+        const color_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+        const color = gl.getAttribLocation(program, "color");
+        gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(color);
+
+
+
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.POINTS, 0, 1);
+    
+        gl.flush();
+        gl.endFrameEXP();
+        _initialized = true;
     }
     renderGL() {
         return (
