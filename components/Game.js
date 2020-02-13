@@ -21,10 +21,11 @@ out vec4 vCol;
 */
 const vertSrc = `
 attribute vec3 color;
+attribute vec3 point;
 varying vec3 vColor;
 
 void main(void) {
-    gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+    gl_Position = vec4(point, 1.0);
     gl_PointSize = 100.0;
     vColor = color;
 }
@@ -152,6 +153,7 @@ class Game extends Component {
         gl.useProgram(program);
 
         let colors = [1.0,0.0,0.0];
+        let points = [0.78, 0.2, 0.0];
         const color_buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
@@ -159,6 +161,15 @@ class Game extends Component {
         const color = gl.getAttribLocation(program, "color");
         gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(color);
+
+        const point_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
+        const point = gl.getAttribLocation(program, "point");
+        gl.vertexAttribPointer(point, 3, gl.FLOAT, false, 0,0);
+        gl.enableVertexAttribArray(point);
 
 
 
