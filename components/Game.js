@@ -10,11 +10,13 @@ import {PlayerView} from './Player';
 const vertSrc = `
 attribute vec3 color;
 attribute vec2 point;
+attribute float scale;
+
 varying vec3 vColor;
 
 void main(void) {
     gl_Position = vec4(point, 0.0, 1.0);
-    gl_PointSize = 70.0;
+    gl_PointSize = scale;
     vColor = color;
 }
 `;
@@ -49,7 +51,6 @@ class Game extends Component {
                 height: 0,
                 positions: []
             },
-            playerDefaultScale: 0,
             players: [],
             frames: 0,
             frameTime: 0,
@@ -135,6 +136,13 @@ class Game extends Component {
         }
         return colors;
     }
+    getPlayerScales() {
+        let scales = [];
+        for(let i = 0; i<this.state.players.length; i++) {
+            scales.push(58.0);
+        }
+        return scales;
+    }
     _onGLContextCreate = gl => {
         
         if (_initialized) {
@@ -165,6 +173,7 @@ class Game extends Component {
 
         let points = this.getPlayerPositions();
         let colors = this.getPlayerColors();
+        let scales = this.getPlayerScales();
 
         const color_buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
@@ -177,11 +186,18 @@ class Game extends Component {
         const point_buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
-
         gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
         const point = gl.getAttribLocation(program, "point");
         gl.vertexAttribPointer(point, 2, gl.FLOAT, false, 0,0);
         gl.enableVertexAttribArray(point);
+
+        const scale_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(scales), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
+        const scale = gl.getAttribLocation(program, "scale");
+        gl.vertexAttribPointer(scale, 1, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(scale);
 
 
 
@@ -207,11 +223,18 @@ class Game extends Component {
             const point_buffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
-
             gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
             const point = gl.getAttribLocation(program, "point");
             gl.vertexAttribPointer(point, 2, gl.FLOAT, false, 0,0);
             gl.enableVertexAttribArray(point);
+
+            const scale_buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(scales), gl.STATIC_DRAW);
+            gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
+            const scale = gl.getAttribLocation(program, "scale");
+            gl.vertexAttribPointer(scale, 1, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(scale);
 
             gl.clear(gl.COLOR_BUFFER_BIT);
             gl.drawArrays(gl.POINTS, 0, points.length / 2);
