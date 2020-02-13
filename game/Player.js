@@ -71,7 +71,7 @@ export default {
             if(this.touches.bottom)
                 this.yVel = -30 * this.gm;
         }
-        this.update = function() { 
+        this.update = function(updateRatio) { 
             //update prevX and prevY
             //prevX is pretty much useless because we don't use it anywhere in this game
             //these are used to see if it's even possible for the collision to happen
@@ -80,11 +80,11 @@ export default {
 
             //if not touching the platform and y-velocity is below the allowed threshold -> we need to accelerate
             if(this.yVel < this.yVelCap && !this.touches.bottom)
-                this.yVel += this.baseYAccel;
+                this.yVel += this.baseYAccel * updateRatio;
 
             //update positions by incrementing the velocities
             this.y += this.yVel;
-            this.x += this.xVel;
+            this.x += this.xVel * updateRatio;
 
             for(let i = 0; i<this.texts.length; i++) {
                 this.texts[i].timeActive = Date.now() - this.texts[i].time;

@@ -25,16 +25,17 @@ class Game extends Component {
                 height: 0,
                 positions: []
             },
-            players: []
+            players: [],
+            frames: 0,
+            frameTime: 0,
+            fps: 0
         }
     }
-    updatePlayers() {
-        let tempPlayers = this.state.players;
-        for(let i = 0; i<tempPlayers.length; i++) {
-            tempPlayers[i].update();
-            tempPlayers[i].checkCollisions(this.state.platform, this.state.buttons);
+    updatePlayers(updateRatio) {
+        for(let i = 0; i<this.state.players.length; i++) {
+            this.state.players[i].update(updateRatio);
+            this.state.players[i].checkCollisions(this.state.platform, this.state.buttons);
         }
-        this.setState({players: tempPlayers});
     }
     componentDidMount() {
         const {width, height} = Dimensions.get('window');
@@ -44,7 +45,7 @@ class Game extends Component {
             screenHeight: height,
             screenPixelHeight: PixelRatio.getPixelSizeForLayoutSize(height)
         });
-
+        this.setState({frameTime: (new Date()).getTime()});
         this.setState({
             platform: {
                 x: 200 * gM(width),
@@ -61,11 +62,22 @@ class Game extends Component {
 
         this.props.testIt();
         this.state.players.push(Player.newPlayer(800, 100, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(850, -300, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(900, 400, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(950, 300, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1000, 100, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1050, 200, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1100, -100, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1150, 0, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1200, 75, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1250, 50, {r: 100, g: 100, b: 255}, gM(width)));
 
         let self = this;
         setInterval(function() {
-            self.updatePlayers();
-        }, 16.6666666);
+            self.setState({frames: self.state.frames+1});
+            self.setState({fps: self.state.frames / (((new Date()).getTime() - self.state.frameTime) / 1000)});
+            self.updatePlayers(self.state.fps / 60);
+        }, 0);
     }
     
     renderPlayers() {
@@ -81,8 +93,7 @@ class Game extends Component {
                 {this.renderPlayers()}
                 <View style={{...styles.platform, left: this.state.platform.x, width: this.state.platform.w, top: this.state.platform.y, height: this.state.platform.h}}></View>
                 <Text style={styles.testtext}>
-                    asdfasdf
-                    {this.props.testText}
+                    {this.state.fps}
                 </Text>
             </View>
         )
