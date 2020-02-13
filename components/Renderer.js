@@ -30,7 +30,11 @@ class Renderer extends Component {
     constructor(props) {
         super(props);
     }
-
+    componentWillUnmount() {
+        _initialized = false;
+        if(this.loop)
+            cancelAnimationFrame(this.loop);
+    }
     _onGLContextCreate = gl => {
             
         if (_initialized) {
@@ -84,6 +88,7 @@ class Renderer extends Component {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(scales), gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
         const scale = gl.getAttribLocation(program, "scale");
+
         gl.vertexAttribPointer(scale, 1, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(scale);
 

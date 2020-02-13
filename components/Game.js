@@ -75,7 +75,6 @@ class Game extends Component {
                 positions: []
             }
         });
-
         this.props.testIt();
         this.state.players.push(Player.newPlayer(200, 0, {r: 23, g: 54, b: 12}, gM(width)));
         this.state.players.push(Player.newPlayer(500, 300, {r: 250, g: 54, b: 255}, gM(width)));
@@ -166,7 +165,8 @@ const mapStateToProps = (state) => {
 
 const styles = StyleSheet.create({
     gamecontainer: {
-        flex: 1
+        flex: 1,
+        backgroundColor: "#000"
     },
     testtext: {
         color:"red",
