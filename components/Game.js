@@ -47,11 +47,11 @@ class Game extends Component {
             this.state.players[i].checkCollisions(this.state.platform, this.state.buttons);
         }
     }
-    changeVels() {
-        const rand = Math.random() * 100;
-        for(let i = 0; i<this.state.players.length; i++) {
-            this.state.players[i].velocityUpdate(rand > 50, rand < 50);
-        }
+    changeOwnVel(right, left) {
+        this.state.players[0].velocityUpdate(right, left);
+    }
+    ownJump() {
+        this.state.players[0].jump();
     }
     componentDidMount() {
         const {width, height} = Dimensions.get('window');
@@ -137,9 +137,28 @@ class Game extends Component {
         }
         return scales;
     }
+    onTouchStart = (name, evt) => {
+        const middleX = this.state.screenWidth / 2;
+        const middleY = this.state.screenHeight / 2;
+        const touchX = evt.nativeEvent.pageX;
+        const touchY = evt.nativeEvent.pageY;
+        if(touchY < middleY)
+            this.ownJump();
+        else if(touchX > middleX)
+            this.changeOwnVel(true, false);
+        else   
+            this.changeOwnVel(false, true);
+    }
+    onTouchRelease = (name, evt) => {
+        this.changeOwnVel(false, false);
+    }
     render() {
         return (
-            <View style={styles.gamecontainer}>
+            <View style={styles.gamecontainer}
+                onStartShouldSetResponder={(ev) => true}
+                onResponderGrant={this.onTouchStart.bind(this, "onResponderGrant")}
+                onResponderRelease={this.onTouchRelease.bind(this, "onResponderRelease")}
+                >
                 <Renderer 
                     getPlayerPositions={this.getPlayerPositions}
                     getPlayerColors={this.getPlayerColors}
@@ -149,9 +168,6 @@ class Game extends Component {
                 <Text style={styles.testtext}>
                     {this.state.fps}
                 </Text>
-                <TouchableOpacity style={styles.debugBtn} onPress={this.changeVels.bind(this)}>
-                    <Text>ASDF</Text>
-                </TouchableOpacity>
             </View>
         );
     }
