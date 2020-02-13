@@ -62,8 +62,7 @@ class Game extends Component {
             this.state.players[i].checkCollisions(this.state.platform, this.state.buttons);
         }
     }
-    changeVels(self) {
-        console.log(this.state.players);
+    changeVels() {
         const rand = Math.random() * 100;
         for(let i = 0; i<this.state.players.length; i++) {
             this.state.players[i].velocityUpdate(rand > 50, rand < 50);
@@ -240,7 +239,7 @@ class Game extends Component {
                 <Text style={styles.testtext}>
                     {this.state.fps}
                 </Text>
-                <TouchableOpacity style={styles.debugBtn} onPress={this.changeVels.bind(this)}>
+                <TouchableOpacity style={styles.debugBtn} onPress={this.changeVels}>
                     <Text>ASDF</Text>
                 </TouchableOpacity>
             </View>
