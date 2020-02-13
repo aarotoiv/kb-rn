@@ -97,9 +97,9 @@ class Game extends Component {
         });
 
         this.props.testIt();
-        this.state.players.push(Player.newPlayer(1150, 0, {r: 23, g: 54, b: 12}, gM(width)));
-        this.state.players.push(Player.newPlayer(1200, 75, {r: 250, g: 54, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(1250, 50, {r: 54, g: 255, b: 76}, gM(width)));
+        this.state.players.push(Player.newPlayer(200, 0, {r: 23, g: 54, b: 12}, gM(width)));
+        this.state.players.push(Player.newPlayer(500, 300, {r: 250, g: 54, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1250, 800, {r: 54, g: 255, b: 76}, gM(width)));
 
         let self = this;
         setInterval(function() {
@@ -119,9 +119,12 @@ class Game extends Component {
     }
     getPlayerPositions() {
         let positions = [];
+        const halfX = this.state.screenWidth / 2;
+        const halfY = this.state.screenHeight / 2;
+        // 1 / halfX - this.state.players[i].x
         for(let i = 0; i<this.state.players.length; i++) {
-            positions.push(this.state.players[i].x);
-            positions.push(this.state.players[i].y);
+            positions.push((this.state.players[i].x - halfX) / halfX);
+            positions.push((halfY - this.state.players[i].y) / halfY);
         }
         return positions;
     }
@@ -162,11 +165,8 @@ class Game extends Component {
         gl.linkProgram(program);
         gl.useProgram(program);
 
-        
-        
-        let points = [0.5, 0.5, 0.2, 0.1, 0.1, 0.5]//this.getPlayerColors();
+        let points = this.getPlayerPositions();
         let colors = this.getPlayerColors();
-        console.log("THE COLORS: " , colors);
 
         const color_buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
