@@ -1,10 +1,27 @@
 import React, { Component } from 'react';
+import { GLView } from 'expo-gl';
+//import Expo2DContext from 'expo-2d-context';
 import { View, Text, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { connect } from 'react-redux';
 import { testIt } from '../actions';
 import { graphicMod as gM } from '../util';
 import Player from '../game/Player';
 import {PlayerView} from './Player';
+
+const vertSrc = `
+void main(void) {
+  gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+  gl_PointSize = 100.0;
+}
+`;
+
+const fragSrc = `
+void main(void) {
+  gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+}
+`;
+
+let _initialized = false;
 
 class Game extends Component {
     constructor() {
@@ -78,6 +95,7 @@ class Game extends Component {
             self.setState({fps: self.state.frames / (((new Date()).getTime() - self.state.frameTime) / 1000)});
             self.updatePlayers(self.state.fps / 60);
         }, 0);
+
     }
     
     renderPlayers() {
@@ -87,16 +105,55 @@ class Game extends Component {
         }
         return players;
     }
+    _onGLContextCreate = gl => {
+        
+        if (_initialized) {
+            return;
+          }
+      
+          gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+          gl.clearColor(0, 0, 0, 1);
+      
+          // Compile vertex and fragment shader
+          const vert = gl.createShader(gl.VERTEX_SHADER);
+          gl.shaderSource(vert, vertSrc);
+          gl.compileShader(vert);
+          const frag = gl.createShader(gl.FRAGMENT_SHADER);
+          gl.shaderSource(frag, fragSrc);
+          gl.compileShader(frag);
+      
+          // Link together into a program
+          const program = gl.createProgram();
+          gl.attachShader(program, vert);
+          gl.attachShader(program, frag);
+          gl.linkProgram(program);
+          gl.useProgram(program);
+      
+          gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.drawArrays(gl.POINTS, 0, 1);
+      
+          gl.flush();
+          gl.endFrameEXP();
+          _initialized = true;
+    }
+    renderGL() {
+        return (
+            <GLView
+                style={{ flex: 1 }}
+                onContextCreate={this._onGLContextCreate}
+            />
+        );
+    }
     render() {
         return (
             <View style={styles.gamecontainer}>
-                {this.renderPlayers()}
+                {this.renderGL()}
                 <View style={{...styles.platform, left: this.state.platform.x, width: this.state.platform.w, top: this.state.platform.y, height: this.state.platform.h}}></View>
                 <Text style={styles.testtext}>
                     {this.state.fps}
                 </Text>
             </View>
-        )
+        );
     }
 }
 
@@ -109,11 +166,12 @@ const mapStateToProps = (state) => {
 const styles = StyleSheet.create({
     gamecontainer: {
         flex: 1,
-        backgroundColor: "#000000"
+        //backgroundColor: "#000000"
     },
     testtext: {
         color:"red",
-        fontSize: 30
+        fontSize: 30,
+        position: "absolute"
     },
     platform: {
         position: "absolute",
