@@ -11,6 +11,8 @@
     "axios": "*",
     "expo": "~36.0.0",
     "expo-2d-context": "0.0.2",
+    "expo-gl": "~8.0.0",
+    "expo-multi-touch": "0.0.0",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz",
@@ -21,8 +23,7 @@
     "react-native-web": "~0.11.7",
     "react-redux": "*",
     "redux": "*",
-    "redux-thunk": "*",
-    "expo-gl": "~8.0.0"
+    "redux-thunk": "*"
   },
   "devDependencies": {
     "babel-preset-expo": "~8.0.0",

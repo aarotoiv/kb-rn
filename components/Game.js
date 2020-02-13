@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { GLView } from 'expo-gl';
-import { View, Text, StyleSheet, Dimensions, PixelRatio, TouchableOpacity } from 'react-native';
+import { MultiTouchView } from 'expo-multi-touch';
+import { View, Text, StyleSheet, Dimensions, PixelRatio, PanResponder } from 'react-native';
 import { connect } from 'react-redux';
 import { testIt } from '../actions';
 import { graphicMod as gM } from '../util';
@@ -31,7 +31,8 @@ class Game extends Component {
             defaultEyeScale: 20 * 70 / 150,
             frames: 0,
             frameTime: 0,
-            fps: 0
+            fps: 0,
+            touches: {}
         }
         this.getPlayerPositions = this.getPlayerPositions.bind(this);
         this.getPlayerColors = this.getPlayerColors.bind(this);
@@ -52,6 +53,46 @@ class Game extends Component {
     }
     ownJump() {
         this.state.players[0].jump();
+    }
+    componentWillMount() {
+        this.gestures = {
+            onTouchBegan: event => {
+                const { identifier } = event;
+                this.setState(previous => ({
+                    touches: {
+                        ...previous.touches,
+                        [identifier]: event,
+                    },
+                }));
+            },
+            onTouchMoved: event => {
+                const { identifier } = event;
+                this.setState(previous => ({
+                    touches: {
+                    ...previous.touches,
+                    [identifier]: event,
+                    },
+                }));
+            },
+            onTouchEnded: event => {
+                const { identifier, deltaX, deltaY, isTap } = event;
+                this.setState(previous => ({
+                    touches: {
+                    ...previous.touches,
+                    [identifier]: null,
+                    },
+                }));
+            },
+            onTouchCancelled: event => {
+                const { identifier, deltaX, deltaY, isTap } = event;
+                this.setState(previous => ({
+                    touches: {
+                    ...previous.touches,
+                    [identifier]: null,
+                    },
+                }));
+            },
+        };
     }
     componentDidMount() {
         const {width, height} = Dimensions.get('window');
@@ -85,16 +126,34 @@ class Game extends Component {
             self.setState({frames: self.state.frames+1});
             self.setState({fps: self.state.frames / (((new Date()).getTime() - self.state.frameTime) / 1000)});
             self.updatePlayers(self.state.fps / 60);
+            self.checkInputs();
         }, 0);
-
     }
-    
-    renderPlayers() {
-        let players = [];
-        for(let i = 0; i<this.state.players.length; i++) {
-            players.push(<PlayerView key={i} x={this.state.players[i].x} y={this.state.players[i].y} scale={this.state.players[i].scale} eyeScale={this.state.players[i].eyeScale} color={this.state.players[i].color} />);
+    checkInputs() {
+        const touchArr = Object.values(this.state.touches);
+        const middleX = this.state.screenWidth / 2;
+        const middleY = this.state.screenHeight / 2;
+
+        let jump = false;
+        let right = false;
+        let left = false;
+
+        for(let i = 0; i<touchArr.length; i++) {
+            if(touchArr[i] != null) {
+                const touchX = touchArr[i].locationX;
+                const touchY = touchArr[i].locationY;
+                if(touchY < middleY) 
+                    jump = true;
+                else if(touchX > middleX) 
+                    right = true;
+                else if(touchX < middleX)
+                    left = true;        
+            }
         }
-        return players;
+
+        if(jump)
+            this.state.players[0].jump();
+        this.state.players[0].velocityUpdate(right, left);
     }
     getPlayerPositions() {
         let positions = [];
@@ -118,13 +177,7 @@ class Game extends Component {
             colors.push(this.state.players[i].color.r / 255);
             colors.push(this.state.players[i].color.g / 255);
             colors.push(this.state.players[i].color.b / 255);
-
-            colors.push(1.0);
-            colors.push(1.0);
-            colors.push(1.0);
-            colors.push(1.0);
-            colors.push(1.0);
-            colors.push(1.0);
+            colors.push(...[1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
         }
         return colors;
     }
@@ -137,28 +190,11 @@ class Game extends Component {
         }
         return scales;
     }
-    onTouchStart = (name, evt) => {
-        const middleX = this.state.screenWidth / 2;
-        const middleY = this.state.screenHeight / 2;
-        const touchX = evt.nativeEvent.pageX;
-        const touchY = evt.nativeEvent.pageY;
-        if(touchY < middleY)
-            this.ownJump();
-        else if(touchX > middleX)
-            this.changeOwnVel(true, false);
-        else   
-            this.changeOwnVel(false, true);
-    }
-    onTouchRelease = (name, evt) => {
-        this.changeOwnVel(false, false);
-    }
     render() {
         return (
-            <View style={styles.gamecontainer}
-                onStartShouldSetResponder={(ev) => true}
-                onResponderGrant={this.onTouchStart.bind(this, "onResponderGrant")}
-                onResponderRelease={this.onTouchRelease.bind(this, "onResponderRelease")}
-                >
+            <MultiTouchView style={styles.gamecontainer}
+                {...this.gestures}
+            >
                 <Renderer 
                     getPlayerPositions={this.getPlayerPositions}
                     getPlayerColors={this.getPlayerColors}
@@ -168,7 +204,7 @@ class Game extends Component {
                 <Text style={styles.testtext}>
                     {this.state.fps}
                 </Text>
-            </View>
+            </MultiTouchView>
         );
     }
 }
@@ -200,6 +236,18 @@ const styles = StyleSheet.create({
         left: 50,
         bottom: 50,
         backgroundColor: "#fff"
+    },
+    buttons: {
+        left: 0,
+        top:0,
+        position: "absolute",
+        height: 100,
+        width: 300,
+        flexDirection: "row",
+        backgroundColor: "red",
+    },
+    button: {
+        flex: 1
     }
 });
 
