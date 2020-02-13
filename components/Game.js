@@ -21,11 +21,11 @@ out vec4 vCol;
 */
 const vertSrc = `
 attribute vec3 color;
-attribute vec3 point;
+attribute vec2 point;
 varying vec3 vColor;
 
 void main(void) {
-    gl_Position = vec4(point, 1.0);
+    gl_Position = vec4(point, 0.0, 1.0);
     gl_PointSize = 100.0;
     vColor = color;
 }
@@ -97,16 +97,9 @@ class Game extends Component {
         });
 
         this.props.testIt();
-        this.state.players.push(Player.newPlayer(800, 100, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(850, -300, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(900, 400, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(950, 300, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(1000, 100, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(1050, 200, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(1100, -100, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(1150, 0, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(1200, 75, {r: 100, g: 100, b: 255}, gM(width)));
-        this.state.players.push(Player.newPlayer(1250, 50, {r: 100, g: 100, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1150, 0, {r: 23, g: 54, b: 12}, gM(width)));
+        this.state.players.push(Player.newPlayer(1200, 75, {r: 250, g: 54, b: 255}, gM(width)));
+        this.state.players.push(Player.newPlayer(1250, 50, {r: 54, g: 255, b: 76}, gM(width)));
 
         let self = this;
         setInterval(function() {
@@ -123,6 +116,23 @@ class Game extends Component {
             players.push(<PlayerView key={i} x={this.state.players[i].x} y={this.state.players[i].y} scale={this.state.players[i].scale} eyeScale={this.state.players[i].eyeScale} color={this.state.players[i].color} />);
         }
         return players;
+    }
+    getPlayerPositions() {
+        let positions = [];
+        for(let i = 0; i<this.state.players.length; i++) {
+            positions.push(this.state.players[i].x);
+            positions.push(this.state.players[i].y);
+        }
+        return positions;
+    }
+    getPlayerColors() {
+        let colors = [];
+        for(let i = 0; i<this.state.players.length; i++) {
+            colors.push(this.state.players[i].color.r / 255);
+            colors.push(this.state.players[i].color.g / 255);
+            colors.push(this.state.players[i].color.b / 255);
+        }
+        return colors;
     }
     _onGLContextCreate = gl => {
         
@@ -152,8 +162,12 @@ class Game extends Component {
         gl.linkProgram(program);
         gl.useProgram(program);
 
-        let colors = [1.0,0.0,0.0];
-        let points = [0.78, 0.2, 0.0];
+        
+        
+        let points = [0.5, 0.5, 0.2, 0.1, 0.1, 0.5]//this.getPlayerColors();
+        let colors = this.getPlayerColors();
+        console.log("THE COLORS: " , colors);
+
         const color_buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
@@ -168,13 +182,13 @@ class Game extends Component {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
         const point = gl.getAttribLocation(program, "point");
-        gl.vertexAttribPointer(point, 3, gl.FLOAT, false, 0,0);
+        gl.vertexAttribPointer(point, 2, gl.FLOAT, false, 0,0);
         gl.enableVertexAttribArray(point);
 
 
 
         gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.drawArrays(gl.POINTS, 0, 1);
+        gl.drawArrays(gl.POINTS, 0, points.length / 2);
     
         gl.flush();
         gl.endFrameEXP();

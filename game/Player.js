@@ -10,7 +10,7 @@ export default {
         this.prevX = 0;
         this.prevY = 0;
         this.scale = 70 * this.gm;
-        this.color = `rgb(${color.r}, ${color.g}, ${color.b})`;
+        this.color = {r: color.r, g: color.g, b: color.b};
         this.baseVel = 10 * this.gm;
         this.xVel = 0;
         this.yVel = 0;
