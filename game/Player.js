@@ -22,7 +22,6 @@ export default {
             top: false,
             left: false
         };
-        this.eyeScale = 20 * this.scale / 150;
         this.texts = [];
         //checking collisions here. Only need to check bottom collision, because if the player falls down, theres nothing they can do anyway.
         //pretty much just checking if player is on top of the platform and its bottom part clips through the platform.

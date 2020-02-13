@@ -5,32 +5,7 @@ import { connect } from 'react-redux';
 import { testIt } from '../actions';
 import { graphicMod as gM } from '../util';
 import Player from '../game/Player';
-import {PlayerView} from './Player';
-
-const vertSrc = `
-attribute vec3 color;
-attribute vec2 point;
-attribute float scale;
-
-varying vec3 vColor;
-
-void main(void) {
-    gl_Position = vec4(point, 0.0, 1.0);
-    gl_PointSize = scale;
-    vColor = color;
-}
-`;
-
-const fragSrc = `
-precision mediump float;
-varying vec3 vColor;
-
-void main(void) {
-  gl_FragColor = vec4(vColor, 1.0);
-}
-`;
-
-let _initialized = false;
+import Renderer from './Renderer';
 
 class Game extends Component {
     constructor() {
@@ -58,6 +33,9 @@ class Game extends Component {
             frameTime: 0,
             fps: 0
         }
+        this.getPlayerPositions = this.getPlayerPositions.bind(this);
+        this.getPlayerColors = this.getPlayerColors.bind(this);
+        this.getPlayerScales = this.getPlayerScales.bind(this);
     }
     componentWillUnmount() {
         if(this.updateLoop) 
@@ -160,125 +138,14 @@ class Game extends Component {
         }
         return scales;
     }
-    _onGLContextCreate = gl => {
-        
-        if (_initialized) {
-            return;
-        }
-    
-        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-        gl.clearColor(0, 0, 0, 1);
-    
-        // Compile vertex and fragment shader
-        const vert = gl.createShader(gl.VERTEX_SHADER);
-        
-        gl.shaderSource(vert, vertSrc);
-        gl.compileShader(vert);
-        const frag = gl.createShader(gl.FRAGMENT_SHADER);
-        
-        gl.shaderSource(frag, fragSrc);
-        gl.compileShader(frag);
-        
-        // Link together into a program
-        const program = gl.createProgram();
-        
-        gl.attachShader(program, vert);
-        gl.attachShader(program, frag);
-
-        gl.linkProgram(program);
-        gl.useProgram(program);
-
-        let points = this.getPlayerPositions();
-        let colors = this.getPlayerColors();
-        let scales = this.getPlayerScales();
-
-        const color_buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-        const color = gl.getAttribLocation(program, "color");
-        gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(color);
-
-        const point_buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
-        const point = gl.getAttribLocation(program, "point");
-        gl.vertexAttribPointer(point, 2, gl.FLOAT, false, 0,0);
-        gl.enableVertexAttribArray(point);
-
-        const scale_buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(scales), gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
-        const scale = gl.getAttribLocation(program, "scale");
-        gl.vertexAttribPointer(scale, 1, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(scale);
-
-
-
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.drawArrays(gl.POINTS, 0, points.length / 2);
-    
-        gl.flush();
-        gl.endFrameEXP();
-        _initialized = true;
-
-        const onTick = () => {
-            let points = this.getPlayerPositions();
-            let colors = this.getPlayerColors();
-
-            const color_buffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-            gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-            const color = gl.getAttribLocation(program, "color");
-            gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(color);
-
-            const point_buffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
-            gl.bindBuffer(gl.ARRAY_BUFFER, point_buffer);
-            const point = gl.getAttribLocation(program, "point");
-            gl.vertexAttribPointer(point, 2, gl.FLOAT, false, 0,0);
-            gl.enableVertexAttribArray(point);
-
-            const scale_buffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(scales), gl.STATIC_DRAW);
-            gl.bindBuffer(gl.ARRAY_BUFFER, scale_buffer);
-            const scale = gl.getAttribLocation(program, "scale");
-            gl.vertexAttribPointer(scale, 1, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(scale);
-
-            gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.drawArrays(gl.POINTS, 0, points.length / 2);
-            gl.flush();
-            gl.endFrameEXP();
-        };
-
-        const animate = () => {
-            if(gl) {
-                this.loop = requestAnimationFrame(animate);
-                onTick(gl);
-            }
-        };
-        animate();
-    }
-    renderGL() {
-        return (
-            <GLView
-                style={{ flex: 1 }}
-                onContextCreate={this._onGLContextCreate}
-            />
-        );
-    }
     render() {
         return (
             <View style={styles.gamecontainer}>
-                {this.renderGL()}
+                <Renderer 
+                    getPlayerPositions={this.getPlayerPositions}
+                    getPlayerColors={this.getPlayerColors}
+                    getPlayerScales={this.getPlayerScales}
+                />
                 <View style={{...styles.platform, left: this.state.platform.x, width: this.state.platform.w, top: this.state.platform.y, height: this.state.platform.h}}></View>
                 <Text style={styles.testtext}>
                     {this.state.fps}
