@@ -56,6 +56,10 @@ class Game extends Component {
             fps: 0
         }
     }
+    componentWillUnmount() {
+        if(this.updateLoop) 
+            clearInterval(this.updateLoop);
+    }
     updatePlayers(updateRatio) {
         for(let i = 0; i<this.state.players.length; i++) {
             this.state.players[i].update(updateRatio);
@@ -97,7 +101,7 @@ class Game extends Component {
         this.state.players.push(Player.newPlayer(1250, 0, {r: 54, g: 255, b: 76}, gM(width)));
 
         let self = this;
-        setInterval(function() {
+        this.updateLoop = setInterval(function() {
             self.setState({frames: self.state.frames+1});
             self.setState({fps: self.state.frames / (((new Date()).getTime() - self.state.frameTime) / 1000)});
             self.updatePlayers(self.state.fps / 60);
@@ -239,7 +243,7 @@ class Game extends Component {
                 <Text style={styles.testtext}>
                     {this.state.fps}
                 </Text>
-                <TouchableOpacity style={styles.debugBtn} onPress={this.changeVels}>
+                <TouchableOpacity style={styles.debugBtn} onPress={this.changeVels.bind(this)}>
                     <Text>ASDF</Text>
                 </TouchableOpacity>
             </View>
