@@ -52,6 +52,8 @@ class Game extends Component {
                 positions: []
             },
             players: [],
+            playerDefaultScale: 70,
+            defaultEyeScale: 20 * 70 / 150,
             frames: 0,
             frameTime: 0,
             fps: 0
@@ -124,6 +126,12 @@ class Game extends Component {
         for(let i = 0; i<this.state.players.length; i++) {
             positions.push((this.state.players[i].x - halfX) / halfX);
             positions.push((halfY - this.state.players[i].y) / halfY);
+
+            positions.push((this.state.players[i].x - this.state.playerDefaultScale / 15 - halfX) / halfX);
+            positions.push((halfY - this.state.players[i].y + this.state.playerDefaultScale / 15) / halfY);
+
+            positions.push((this.state.players[i].x + this.state.playerDefaultScale / 15 - halfX) / halfX);
+            positions.push((halfY - this.state.players[i].y + this.state.playerDefaultScale / 15 ) / halfY);
         }
         return positions;
     }
@@ -133,13 +141,22 @@ class Game extends Component {
             colors.push(this.state.players[i].color.r / 255);
             colors.push(this.state.players[i].color.g / 255);
             colors.push(this.state.players[i].color.b / 255);
+
+            colors.push(1.0);
+            colors.push(1.0);
+            colors.push(1.0);
+            colors.push(1.0);
+            colors.push(1.0);
+            colors.push(1.0);
         }
         return colors;
     }
     getPlayerScales() {
         let scales = [];
         for(let i = 0; i<this.state.players.length; i++) {
-            scales.push(58.0);
+            scales.push(this.state.playerDefaultScale * gM(this.state.screenPixelWidth));
+            scales.push(this.state.defaultEyeScale * gM(this.state.screenPixelWidth));
+            scales.push(this.state.defaultEyeScale * gM(this.state.screenPixelWidth));
         }
         return scales;
     }
