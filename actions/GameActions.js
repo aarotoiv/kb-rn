@@ -5,7 +5,9 @@ import {
     SOCKET_JOINING,
     SOCKET_CONNECTED,
     SOCKET_CONNECTING,
-    UPDATE_PLAYERS
+    UPDATE_PLAYERS,
+    PLAYER_JUMP,
+    PLAYER_VELOCITY
 } from './types';
 import { Dimensions } from 'react-native';
 import Player from '../game/Player';
@@ -77,5 +79,19 @@ export const updatePlayers = (players, updateRate, platform) => {
     return {
         type: UPDATE_PLAYERS,
         payload: players
+    };
+};
+
+export const playerJump = (id) => {
+    return {
+        type: PLAYER_JUMP,
+        payload: id
+    };
+};
+
+export const playerVelocity = (id, right, left) => {
+    return {
+        type: PLAYER_VELOCITY,
+        payload: {id, right, left}
     };
 };

@@ -4,7 +4,9 @@ import {
     SOCKET_JOINED,
     SOCKET_CONNECTING,
     SOCKET_CONNECTED,
-    UPDATE_PLAYERS
+    UPDATE_PLAYERS,
+    PLAYER_JUMP,
+    PLAYER_VELOCITY
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -28,6 +30,16 @@ export default (state = INITIAL_STATE, action) => {
             return {...state, players: action.payload.players, playerListData: action.payload.playerListData, yourId: action.payload.yourId, joined: true};
         case UPDATE_PLAYERS: 
             return {...state, players: action.payload};
+        case PLAYER_JUMP: 
+            const jumpPlayer = state.players[action.payload];
+            if(jumpPlayer)
+                jumpPlayer.jump();
+            return {...state, players: {...state.players, [action.payload]: jumpPlayer}};
+        case PLAYER_VELOCITY:
+            const velPlayer = state.players[action.payload.id];
+            if(velPlayer)
+                velPlayer.velocityUpdate(action.payload.right, action.payload.left);
+            return {...state, players: {...state.players, [action.payload.id]: velPlayer}};
         default:
             return state;
     }

@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { MultiTouchView } from 'expo-multi-touch';
-import { View, Text, StyleSheet, Dimensions, PixelRatio, PanResponder } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { connect } from 'react-redux';
-import { updatePlayers } from '../actions';
+import { updatePlayers, playerJump, playerVelocity } from '../actions';
 import { graphicMod as gM } from '../util';
-import Player from '../game/Player';
 import Renderer from './Renderer';
 
 class Game extends Component {
@@ -31,7 +30,7 @@ class Game extends Component {
             frameTime: 0,
             fps: 0,
             touches: {}
-        }
+        };
 
         this.getPlayerPositions = this.getPlayerPositions.bind(this);
         this.getPlayerColors = this.getPlayerColors.bind(this);
@@ -117,7 +116,7 @@ class Game extends Component {
         const touchArr = Object.values(this.state.touches);
         const middleX = this.state.screenWidth / 2;
         const middleY = this.state.screenHeight / 2;
-
+            
         let jump = false;
         let right = false;
         let left = false;
@@ -135,10 +134,11 @@ class Game extends Component {
             }
         }
 
-        if(jump) {
-            this.props.players[this.props.yourId].jump();
-        }
-        this.props.players[this.props.yourId].velocityUpdate(right, left);
+        if(jump && this.props.players[this.props.yourId].canJump()) 
+            this.props.playerJump(this.props.yourId);
+        
+        if(this.props.players[this.props.yourId].velDiffers(right, left))
+            this.props.playerVelocity(this.props.yourId, right, left);
     }
     getPlayerPositions() {
         let positions = [];
@@ -256,4 +256,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default connect(mapStateToProps, { updatePlayers })(Game);
+export default connect(mapStateToProps, { updatePlayers, playerJump, playerVelocity })(Game);

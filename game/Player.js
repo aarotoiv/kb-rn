@@ -123,5 +123,17 @@ export default {
             this.baseYAccel = 2 * this.gm;
             this.yVelCap = 16 * this.gm;
         }
+        this.canJump = function() {
+            return this.touches.bottom;
+        }
+        this.velDiffers = function(right, left) {
+            let xVel = 0;
+            if(right)
+                xVel += this.baseVel;
+            if(left)
+                xVel -= this.baseVel;
+            
+            return xVel != this.xVel;
+        }
     }
 }
