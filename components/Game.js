@@ -81,10 +81,11 @@ class Game extends Component {
             clearInterval(this.updateLoop);
     }
     updatePlayers(updateRatio) {
-        /*for(let i = 0; i<this.state.players.length; i++) {
-            this.state.players[i].update(updateRatio);
-            this.state.players[i].checkCollisions(this.state.platform, this.state.buttons);
-        }*/
+        const keys = Object.keys(this.props.players);
+        for(let i = 0; i<keys.length; i++) {
+            this.props.players[keys[i]].update(updateRatio);
+            this.props.players[keys[i]].checkCollisions(this.state.platform, this.state.buttons);
+        }
     }
     componentDidMount() {
         const {width, height} = Dimensions.get('window');
@@ -139,9 +140,9 @@ class Game extends Component {
         }
 
         if(jump) {
-            //this.state.players[0].jump();
+            this.props.players[this.props.yourId].jump();
         }
-        //this.state.players[0].velocityUpdate(right, left);
+        this.props.players[this.props.yourId].velocityUpdate(right, left);
     }
     getPlayerPositions() {
         let positions = [];

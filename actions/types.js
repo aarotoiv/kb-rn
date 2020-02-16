@@ -3,3 +3,13 @@ export const SOCKET_JOINING = "SOCKET_JOIN";
 export const SOCKET_JOINED = "SOCKET_JOINED";
 export const SOCKET_CONNECTING = "SOCKET_CONNECTING";
 export const SOCKET_CONNECTED = "SOCKET_CONNECTED";
+
+export const PLAYER_JOINED = "PLAYER_JOINED";
+export const YOU_LEFT = "YOU_LEFT";
+export const PLAYER_LEFT = "PLAYER_LEFT";
+export const PLAYER_POSITION = "PLAYER_POSITION";
+export const PLAYER_VELOCITY = "PLAYER_VELOCITY";
+export const PLAYER_JUMP = "PLAYER_JUMP";
+export const YOU_CLICKED = "YOU_CLICKED";
+export const PLAYER_CLICKED = "PLAYER_CLICKED";
+export const NEW_BUTTON = "NEW_BUTTON";
