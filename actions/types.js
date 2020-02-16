@@ -13,3 +13,5 @@ export const PLAYER_JUMP = "PLAYER_JUMP";
 export const YOU_CLICKED = "YOU_CLICKED";
 export const PLAYER_CLICKED = "PLAYER_CLICKED";
 export const NEW_BUTTON = "NEW_BUTTON";
+
+export const UPDATE_PLAYERS = "UPDATE_PLAYERS";

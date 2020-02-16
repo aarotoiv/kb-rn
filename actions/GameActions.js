@@ -1,5 +1,12 @@
 import axios from 'axios';
-import { TEST_TYPE, SOCKET_JOINED, SOCKET_JOINING, SOCKET_CONNECTED, SOCKET_CONNECTING } from './types';
+import { 
+    TEST_TYPE,
+    SOCKET_JOINED,
+    SOCKET_JOINING,
+    SOCKET_CONNECTED,
+    SOCKET_CONNECTING,
+    UPDATE_PLAYERS
+} from './types';
 import { Dimensions } from 'react-native';
 import Player from '../game/Player';
 import { graphicMod as gM } from '../util';
@@ -59,4 +66,16 @@ const youJoined = data => {
         }
     };
     
+};
+
+export const updatePlayers = (players, updateRate, platform) => {
+    const keys = Object.keys(players);
+    for(let i = 0; i<keys.length; i++) {
+        players[keys[i]].update(updateRate);
+        players[keys[i]].checkCollisions(platform);
+    }
+    return {
+        type: UPDATE_PLAYERS,
+        payload: players
+    };
 };

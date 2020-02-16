@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { MultiTouchView } from 'expo-multi-touch';
 import { View, Text, StyleSheet, Dimensions, PixelRatio, PanResponder } from 'react-native';
 import { connect } from 'react-redux';
-import { socketConnect } from '../actions';
+import { updatePlayers } from '../actions';
 import { graphicMod as gM } from '../util';
 import Player from '../game/Player';
 import Renderer from './Renderer';
@@ -81,11 +81,7 @@ class Game extends Component {
             clearInterval(this.updateLoop);
     }
     updatePlayers(updateRatio) {
-        const keys = Object.keys(this.props.players);
-        for(let i = 0; i<keys.length; i++) {
-            this.props.players[keys[i]].update(updateRatio);
-            this.props.players[keys[i]].checkCollisions(this.state.platform, this.state.buttons);
-        }
+        this.props.updatePlayers(this.props.players, updateRatio, this.state.platform);
     }
     componentDidMount() {
         const {width, height} = Dimensions.get('window');
@@ -260,4 +256,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default connect(mapStateToProps, { socketConnect })(Game);
+export default connect(mapStateToProps, { updatePlayers })(Game);
