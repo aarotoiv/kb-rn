@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import { MultiTouchView } from 'expo-multi-touch';
 import { View, Text, StyleSheet, Dimensions, PixelRatio, PanResponder } from 'react-native';
 import { connect } from 'react-redux';
-import { testIt } from '../actions';
+import { socketConnect } from '../actions';
 import { graphicMod as gM } from '../util';
 import Player from '../game/Player';
 import Renderer from './Renderer';
+import SocketHandler from '../game/SocketHandler';
 
 class Game extends Component {
     constructor() {
@@ -95,6 +96,8 @@ class Game extends Component {
         };
     }
     componentDidMount() {
+        this.props.socketConnect(); 
+
         const {width, height} = Dimensions.get('window');
         this.setState({
             screenWidth: width,
@@ -112,20 +115,16 @@ class Game extends Component {
             },
             buttons: {
                 width: 80 * gM(width),
-                height: 25 * gM(width),
-                positions: []
+                height: 25 * gM(width)
             }
         });
-        this.props.testIt();
-        this.state.players.push(Player.newPlayer(200, 0, {r: 23, g: 54, b: 12}, gM(width)));
-        this.state.players.push(Player.newPlayer(500, 300, {r: 250, g: 54, b: 255}, gM(width)));
         this.state.players.push(Player.newPlayer(1250, 0, {r: 54, g: 255, b: 76}, gM(width)));
 
         let self = this;
         this.updateLoop = setInterval(function() {
             self.setState({frames: self.state.frames+1});
             self.setState({fps: self.state.frames / (((new Date()).getTime() - self.state.frameTime) / 1000)});
-            self.updatePlayers(self.state.fps / 60);
+            self.updatePlayers(60 / self.state.fps);
             self.checkInputs();
         }, 0);
     }
@@ -151,8 +150,9 @@ class Game extends Component {
             }
         }
 
-        if(jump)
+        if(jump) {
             this.state.players[0].jump();
+        }
         this.state.players[0].velocityUpdate(right, left);
     }
     getPlayerPositions() {
@@ -191,7 +191,7 @@ class Game extends Component {
         return scales;
     }
     render() {
-        return (
+        return this.props.joined ? (
             <MultiTouchView style={styles.gamecontainer}
                 {...this.gestures}
             >
@@ -202,16 +202,25 @@ class Game extends Component {
                 />
                 <View style={{...styles.platform, left: this.state.platform.x, width: this.state.platform.w, top: this.state.platform.y, height: this.state.platform.h}}></View>
                 <Text style={styles.testtext}>
-                    {this.state.fps}
+                    {Math.ceil(this.state.fps)}
                 </Text>
             </MultiTouchView>
-        );
+        ) : 
+        (
+            <View>
+                <Text style={styles.loadingText}>
+                    LOADING...
+                </Text>
+            </View>
+        )
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        testText: state.game.kysta
+        socket: state.game.socket,
+        connecting: state.game.connecting,
+        connected: state.game.connected
     };
 };
 
@@ -248,7 +257,12 @@ const styles = StyleSheet.create({
     },
     button: {
         flex: 1
+    },
+    loadingText: {
+        fontSize: 30,
+        textAlign: "center",
+        top: 150
     }
 });
 
-export default connect(mapStateToProps, { testIt })(Game);
+export default connect(mapStateToProps, { socketConnect })(Game);
