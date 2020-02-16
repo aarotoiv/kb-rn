@@ -7,7 +7,8 @@ import {
     SOCKET_CONNECTING,
     UPDATE_PLAYERS,
     PLAYER_JUMP,
-    PLAYER_VELOCITY
+    PLAYER_VELOCITY,
+    PLAYER_LEFT
 } from './types';
 import { Dimensions } from 'react-native';
 import Player from '../game/Player';
@@ -25,7 +26,10 @@ export const socketConnect = () => {
             SocketHandler.listeners(
                 res, 
                 dispatch,
-                youJoined
+                youJoined,
+                playerJump,
+                playerVelocity,
+                playerLeft
             );
             dispatch({
                 type: SOCKET_CONNECTED,
@@ -82,16 +86,27 @@ export const updatePlayers = (players, updateRate, platform) => {
     };
 };
 
-export const playerJump = (id) => {
+export const playerJump = (id, socket) => {
+    if(socket)
+        SocketHandler.jumpUpdate(socket, id);
     return {
         type: PLAYER_JUMP,
         payload: id
     };
 };
 
-export const playerVelocity = (id, right, left) => {
+export const playerVelocity = (id, right, left, socket) => {
+    if(socket) 
+        SocketHandler.velUpdate(socket, right, left);
     return {
         type: PLAYER_VELOCITY,
         payload: {id, right, left}
     };
 };
+
+export const playerLeft = (id) => {
+    return {
+        type: PLAYER_LEFT,
+        payload: id
+    };
+}

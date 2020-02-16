@@ -6,7 +6,8 @@ import {
     SOCKET_CONNECTED,
     UPDATE_PLAYERS,
     PLAYER_JUMP,
-    PLAYER_VELOCITY
+    PLAYER_VELOCITY,
+    PLAYER_LEFT
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -40,6 +41,10 @@ export default (state = INITIAL_STATE, action) => {
             if(velPlayer)
                 velPlayer.velocityUpdate(action.payload.right, action.payload.left);
             return {...state, players: {...state.players, [action.payload.id]: velPlayer}};
+        case PLAYER_LEFT:
+            let leftPlayers = state.players;
+            delete leftPlayers[action.payload.id];
+            return {...state, players: leftPlayers};
         default:
             return state;
     }

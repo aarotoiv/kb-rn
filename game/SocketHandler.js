@@ -14,7 +14,7 @@ export default {
         console.log("socket initialized");
         return socket;
     },
-    listeners(socket, dispatch, youJoined/*, playerJoined, playerLeft, playerPositionUpdate, playerVelocityUpdate, playerJumpUpdate, youClicked, playerClicked, newButton*/) {
+    listeners(socket, dispatch, youJoined, playerJump, playerVelocity, playerLeft/*, playerJoined, playerLeft, playerPositionUpdate, playerVelocityUpdate, playerJumpUpdate, youClicked, playerClicked, newButton*/) {
         socket.on('youJoined', function(data) {
             dispatch(youJoined(data));
         });
@@ -23,20 +23,20 @@ export default {
         });
         socket.on('youLeft', function() {
             console.log("YOU HAVE LEFT");
-        });
+        });*/
         socket.on('playerLeft', function(data) {
             playerLeft(data.id);
-        });
+        });/*
         socket.on('playerPosition', function(data) {
             playerPositionUpdate(data.id, data.x, data.y);
-        });
+        });*/
         socket.on('playerVelocity', function(data) {
-            playerVelocityUpdate(data.id, data.right, data.left);
+            dispatch(playerVelocity(data.id, data.right, data.left));
         });
         socket.on('playerJump', function(data) {
-            playerJumpUpdate(data.id);
+            dispatch(playerJump(data.id));
         });
-        socket.on('youClicked', function(data) {
+        /*socket.on('youClicked', function(data) {
             youClicked(data.points, data.hitsTillPrize);
         });
         socket.on('playerClicked', function(data) {
@@ -54,13 +54,14 @@ export default {
     },
     posUpdate(socket, x, y) {
         socket.emit('positionUpdate', {x, y});
-    },
+    },*/
     velUpdate(socket, right, left) {
         socket.emit('velocityUpdate', {right, left});
     },
     jumpUpdate(socket) {
         socket.emit('jumpUpdate', {});
-    },
+    }
+    /*,
     buttonHit(socket, id) {
         socket.emit('buttonHit', {id});
     }*/

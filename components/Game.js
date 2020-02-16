@@ -135,10 +135,10 @@ class Game extends Component {
         }
 
         if(jump && this.props.players[this.props.yourId].canJump()) 
-            this.props.playerJump(this.props.yourId);
+            this.props.playerJump(this.props.yourId, this.props.socket);
         
         if(this.props.players[this.props.yourId].velDiffers(right, left))
-            this.props.playerVelocity(this.props.yourId, right, left);
+            this.props.playerVelocity(this.props.yourId, right, left, this.props.socket);
     }
     getPlayerPositions() {
         let positions = [];
