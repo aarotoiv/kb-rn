@@ -10,14 +10,13 @@ export default {
     },
     async initialize() {
         const res = await axios.get(URI + '/', {withCredentials: true});
-        console.log(res);
         const socket = await io(URI, {withCredentials: true});
         console.log("socket initialized");
         return socket;
     },
-    listeners(socket, youJoined/*, playerJoined, playerLeft, playerPositionUpdate, playerVelocityUpdate, playerJumpUpdate, youClicked, playerClicked, newButton*/) {
+    listeners(socket, dispatch, youJoined/*, playerJoined, playerLeft, playerPositionUpdate, playerVelocityUpdate, playerJumpUpdate, youClicked, playerClicked, newButton*/) {
         socket.on('youJoined', function(data) {
-            youJoined(data.id, data.userName, data.existingPlayers, data.color, data.buttons, data.points);
+            dispatch(youJoined(data));
         });
         /*socket.on('playerJoined', function(data) {
             playerJoined(data.id, data.userName, data.x, data.color, data.points);

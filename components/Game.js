@@ -6,7 +6,6 @@ import { socketConnect } from '../actions';
 import { graphicMod as gM } from '../util';
 import Player from '../game/Player';
 import Renderer from './Renderer';
-import SocketHandler from '../game/SocketHandler';
 
 class Game extends Component {
     constructor() {
@@ -24,10 +23,8 @@ class Game extends Component {
             },
             buttons: {
                 width: 0,
-                height: 0,
-                positions: []
+                height: 0
             },
-            players: [],
             playerDefaultScale: 70,
             defaultEyeScale: 20 * 70 / 150,
             frames: 0,
@@ -35,27 +32,11 @@ class Game extends Component {
             fps: 0,
             touches: {}
         }
+
         this.getPlayerPositions = this.getPlayerPositions.bind(this);
         this.getPlayerColors = this.getPlayerColors.bind(this);
         this.getPlayerScales = this.getPlayerScales.bind(this);
-    }
-    componentWillUnmount() {
-        if(this.updateLoop) 
-            clearInterval(this.updateLoop);
-    }
-    updatePlayers(updateRatio) {
-        for(let i = 0; i<this.state.players.length; i++) {
-            this.state.players[i].update(updateRatio);
-            this.state.players[i].checkCollisions(this.state.platform, this.state.buttons);
-        }
-    }
-    changeOwnVel(right, left) {
-        this.state.players[0].velocityUpdate(right, left);
-    }
-    ownJump() {
-        this.state.players[0].jump();
-    }
-    componentWillMount() {
+
         this.gestures = {
             onTouchBegan: event => {
                 const { identifier } = event;
@@ -95,9 +76,17 @@ class Game extends Component {
             },
         };
     }
+    componentWillUnmount() {
+        if(this.updateLoop) 
+            clearInterval(this.updateLoop);
+    }
+    updatePlayers(updateRatio) {
+        /*for(let i = 0; i<this.state.players.length; i++) {
+            this.state.players[i].update(updateRatio);
+            this.state.players[i].checkCollisions(this.state.platform, this.state.buttons);
+        }*/
+    }
     componentDidMount() {
-        this.props.socketConnect(); 
-
         const {width, height} = Dimensions.get('window');
         this.setState({
             screenWidth: width,
@@ -118,7 +107,6 @@ class Game extends Component {
                 height: 25 * gM(width)
             }
         });
-        this.state.players.push(Player.newPlayer(1250, 0, {r: 54, g: 255, b: 76}, gM(width)));
 
         let self = this;
         this.updateLoop = setInterval(function() {
@@ -151,39 +139,44 @@ class Game extends Component {
         }
 
         if(jump) {
-            this.state.players[0].jump();
+            //this.state.players[0].jump();
         }
-        this.state.players[0].velocityUpdate(right, left);
+        //this.state.players[0].velocityUpdate(right, left);
     }
     getPlayerPositions() {
         let positions = [];
+
         const halfX = this.state.screenWidth / 2;
         const halfY = this.state.screenHeight / 2;
-        for(let i = 0; i<this.state.players.length; i++) {
-            positions.push((this.state.players[i].x - halfX) / halfX);
-            positions.push((halfY - this.state.players[i].y) / halfY);
+        
+        const keys = Object.keys(this.props.players);
+        for(let i = 0; i<keys.length; i++) {
+            positions.push((this.props.players[keys[i]].x - halfX) / halfX);
+            positions.push((halfY - this.props.players[keys[i]].y) / halfY);
 
-            positions.push((this.state.players[i].x - this.state.playerDefaultScale / 15 - halfX) / halfX);
-            positions.push((halfY - this.state.players[i].y + this.state.playerDefaultScale / 15) / halfY);
+            positions.push((this.props.players[keys[i]].x - this.state.playerDefaultScale / 15 - halfX) / halfX);
+            positions.push((halfY - this.props.players[keys[i]].y + this.state.playerDefaultScale / 15) / halfY);
 
-            positions.push((this.state.players[i].x + this.state.playerDefaultScale / 15 - halfX) / halfX);
-            positions.push((halfY - this.state.players[i].y + this.state.playerDefaultScale / 15 ) / halfY);
+            positions.push((this.props.players[keys[i]].x + this.state.playerDefaultScale / 15 - halfX) / halfX);
+            positions.push((halfY - this.props.players[keys[i]].y + this.state.playerDefaultScale / 15 ) / halfY);
         }
         return positions;
     }
     getPlayerColors() {
         let colors = [];
-        for(let i = 0; i<this.state.players.length; i++) {
-            colors.push(this.state.players[i].color.r / 255);
-            colors.push(this.state.players[i].color.g / 255);
-            colors.push(this.state.players[i].color.b / 255);
+        const keys = Object.keys(this.props.players);
+        for(let i = 0; i<keys.length; i++) {
+            colors.push(this.props.players[keys[i]].color.r / 255);
+            colors.push(this.props.players[keys[i]].color.g / 255);
+            colors.push(this.props.players[keys[i]].color.b / 255);
             colors.push(...[1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
         }
         return colors;
     }
     getPlayerScales() {
         let scales = [];
-        for(let i = 0; i<this.state.players.length; i++) {
+        const keys = Object.keys(this.props.players);
+        for(let i = 0; i<keys.length; i++) {
             scales.push(this.state.playerDefaultScale * gM(this.state.screenPixelWidth));
             scales.push(this.state.defaultEyeScale * gM(this.state.screenPixelWidth));
             scales.push(this.state.defaultEyeScale * gM(this.state.screenPixelWidth));
@@ -219,8 +212,9 @@ class Game extends Component {
 const mapStateToProps = (state) => {
     return {
         socket: state.game.socket,
-        connecting: state.game.connecting,
-        connected: state.game.connected
+        joined: state.game.joined,
+        players: state.game.players,
+        yourId: state.game.yourId
     };
 };
 

@@ -14,11 +14,9 @@ const RouterComponent = () => {
   return (
     <Router showNavigationBar={false}>
       <Stack key="root" hideNavBar>
-        <Stack key="game" hideNavBar>
+        <Stack key="thegame" hideNavBar>
+          <Scene key="home" component={Home} hideNavBar title="Home" initial={true} />
           <Scene key="game" component={Game} hideNavBar title="Game" />
-        </Stack>
-        <Stack key="main">
-          <Scene key="home" component={Home} />
         </Stack>
       </Stack>
     </Router>
