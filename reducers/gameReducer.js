@@ -27,12 +27,16 @@ export default (state = INITIAL_STATE, action) => {
     switch(action.type) {
         case SOCKET_CONNECTING: 
             return {...state, connecting: true, connected: false};
+        
         case SOCKET_CONNECTED:
             return {...state, socket: action.payload, connecting: false, connected: true};
+        
         case SOCKET_JOINED: 
             return {...state, players: action.payload.players, playerListData: action.payload.playerListData, yourId: action.payload.yourId, joined: true};
+        
         case UPDATE_PLAYERS: 
             return {...state, players: action.payload};
+        
         case PLAYER_JUMP: 
             if(action.payload && state.players[action.payload]) {
                 let jumpPlayer = state.players[action.payload];
