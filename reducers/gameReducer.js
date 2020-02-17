@@ -8,7 +8,8 @@ import {
     PLAYER_JUMP,
     PLAYER_VELOCITY,
     PLAYER_LEFT,
-    PLAYER_POSITION
+    PLAYER_POSITION,
+    PLAYER_JOINED
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -49,19 +50,23 @@ export default (state = INITIAL_STATE, action) => {
             return {...state}
 
         case PLAYER_LEFT:
-            let leftPlayers = state.players;
-            delete leftPlayers[action.payload.id];
-            return {...state, players: leftPlayers};
+            let leftPlayers = Object.assign({}, state.players);
+            delete leftPlayers[action.payload];
+            let leftPlayerList = Object.assign({}, state.playerListData);
+            delete leftPlayerList[action.payload];
+            return {...state, players: leftPlayers, playerListData: leftPlayerList};
             
         case PLAYER_POSITION:
             if(action.payload.id && state.players[action.payload.id]) {
                 let positionPlayer = state.players[action.payload.id];
-                positionPlayer.x = action.payload.x;
-                positionPlayer.y = action.payload.y;
+                positionPlayer.syncPos(action.payload.x, action.payload.y);
                 return {...state, players: {...state.players, [action.payload.id]: positionPlayer}};
             } 
             return {...state};
-            
+        
+        case PLAYER_JOINED:
+            return {...state, players: {...state.players, [action.payload.id]: action.payload.player}, playerListData: {...state.playerListData, [action.payload.id]: {name: action.payload.userName, points: action.payload.points}}};
+
         default:
             return state;
     }

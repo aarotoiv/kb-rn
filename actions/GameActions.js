@@ -9,8 +9,10 @@ import {
     PLAYER_JUMP,
     PLAYER_VELOCITY,
     PLAYER_LEFT,
-    PLAYER_POSITION
+    PLAYER_POSITION,
+    PLAYER_JOINED
 } from './types';
+
 import { Dimensions, PixelRatio } from 'react-native';
 import Player from '../game/Player';
 import { graphicMod as gM } from '../util';
@@ -31,7 +33,8 @@ export const socketConnect = () => {
                 playerJump,
                 playerVelocity,
                 playerLeft,
-                playerPositionUpdate
+                playerPositionUpdate,
+                playerJoined
             );
             dispatch({
                 type: SOCKET_CONNECTED,
@@ -82,7 +85,18 @@ const playerPositionUpdate = (id, x, y) => {
         type: PLAYER_POSITION,
         payload: {id,x,y}
     };
-};
+};  
+
+const playerJoined = (id, userName, x, color, points) => {
+    const { width } = Dimensions.get('window');
+    const screenPixelWidth = PixelRatio.getPixelSizeForLayoutSize(width);
+
+    const player = Player.newPlayer(x, 0, color, gM(width));
+    return {
+        type: PLAYER_JOINED,
+        payload: {id, player, userName, points}
+    };
+}
 
 export const updatePlayers = (players, updateRate, platform) => {
     const keys = Object.keys(players);
@@ -122,3 +136,4 @@ export const playerLeft = (id) => {
         payload: id
     };
 }
+

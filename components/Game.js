@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { updatePlayers, playerJump, playerVelocity } from '../actions';
 import { graphicMod as gM } from '../util';
 import Renderer from './Renderer';
+import SocketHandler from '../game/SocketHandler';
 
 class Game extends Component {
     constructor() {
@@ -111,6 +112,9 @@ class Game extends Component {
             self.updatePlayers(60 / self.state.fps);
             self.checkInputs();
         }, 0);
+        this.syncLoop = setInterval(function() {
+            SocketHandler.posUpdate(self.props.socket, self.props.players[self.props.yourId].getX(), self.props.players[self.props.yourId].getY());
+        }, 1000);
     }
     checkInputs() {
         const touchArr = Object.values(this.state.touches);
