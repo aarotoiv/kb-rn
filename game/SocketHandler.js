@@ -14,7 +14,7 @@ export default {
         console.log("socket initialized");
         return socket;
     },
-    listeners(socket, dispatch, youJoined, playerJump, playerVelocity, playerLeft/*, playerJoined, playerLeft, playerPositionUpdate, playerVelocityUpdate, playerJumpUpdate, youClicked, playerClicked, newButton*/) {
+    listeners(socket, dispatch, youJoined, playerJump, playerVelocity, playerLeft, playerPositionUpdate/*, playerJoined, playerLeft, playerPositionUpdate, playerVelocityUpdate, playerJumpUpdate, youClicked, playerClicked, newButton*/) {
         socket.on('youJoined', function(data) {
             dispatch(youJoined(data));
         });
@@ -25,11 +25,11 @@ export default {
             console.log("YOU HAVE LEFT");
         });*/
         socket.on('playerLeft', function(data) {
-            playerLeft(data.id);
-        });/*
+            dispatch(playerLeft(data.id));
+        });
         socket.on('playerPosition', function(data) {
-            playerPositionUpdate(data.id, data.x, data.y);
-        });*/
+            dispatch(playerPositionUpdate(data.id, data.x, data.y));
+        });
         socket.on('playerVelocity', function(data) {
             dispatch(playerVelocity(data.id, data.right, data.left));
         });

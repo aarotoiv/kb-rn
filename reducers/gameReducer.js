@@ -7,7 +7,8 @@ import {
     UPDATE_PLAYERS,
     PLAYER_JUMP,
     PLAYER_VELOCITY,
-    PLAYER_LEFT
+    PLAYER_LEFT,
+    PLAYER_POSITION
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -32,19 +33,35 @@ export default (state = INITIAL_STATE, action) => {
         case UPDATE_PLAYERS: 
             return {...state, players: action.payload};
         case PLAYER_JUMP: 
-            const jumpPlayer = state.players[action.payload];
-            if(jumpPlayer)
+            if(action.payload && state.players[action.payload]) {
+                let jumpPlayer = state.players[action.payload];
                 jumpPlayer.jump();
-            return {...state, players: {...state.players, [action.payload]: jumpPlayer}};
+                return {...state, players: {...state.players, [action.payload]: jumpPlayer}};
+            }
+            return {...state};
+           
         case PLAYER_VELOCITY:
-            const velPlayer = state.players[action.payload.id];
-            if(velPlayer)
+            if(action.payload.id && state.players[action.payload.id]) {
+                let velPlayer = state.players[action.payload.id];
                 velPlayer.velocityUpdate(action.payload.right, action.payload.left);
-            return {...state, players: {...state.players, [action.payload.id]: velPlayer}};
+                return {...state, players: {...state.players, [action.payload.id]: velPlayer}};
+            }
+            return {...state}
+
         case PLAYER_LEFT:
             let leftPlayers = state.players;
             delete leftPlayers[action.payload.id];
             return {...state, players: leftPlayers};
+            
+        case PLAYER_POSITION:
+            if(action.payload.id && state.players[action.payload.id]) {
+                let positionPlayer = state.players[action.payload.id];
+                positionPlayer.x = action.payload.x;
+                positionPlayer.y = action.payload.y;
+                return {...state, players: {...state.players, [action.payload.id]: positionPlayer}};
+            } 
+            return {...state};
+            
         default:
             return state;
     }
